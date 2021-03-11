@@ -1,6 +1,11 @@
 # VIM
 Setting up a pretty vim
 
+NOTE: The below commands were tested on Ubuntu VM which was used via SSH from MAC
+
+### Setting up a pretty iTerm2
+* Follow https://mayccoll.github.io/Gogh/ and install "Argonaut" theme
+
 ### Install plug.vim which will help in installing other packages
 ```
 curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
