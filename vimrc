@@ -47,6 +47,12 @@ Plug 'https://github.com/airblade/vim-gitgutter.git'
 " Fuzzy finder "
 Plug 'https://github.com/junegunn/fzf.git'
 Plug 'https://github.com/junegunn/fzf.vim.git'
+
+" Fold "
+Plug 'https://github.com/tmhedberg/SimpylFold.git'
+
+" Notes maker "
+Plug 'https://github.com/vimwiki/vimwiki.git'
 call plug#end()
 
 
@@ -59,6 +65,9 @@ nmap <Leader>gp <Plug>GitGutterPrevHunk  " git previous
 map <C-f> <Esc><Esc>:Files!<CR>
 inoremap <C-f> <Esc><Esc>:BLines!<CR>
 map <C-g> <Esc><Esc>:BCommits!<CR>
+
+" fold enable / disable "
+set foldenable
 
 "****************************** Plugin set **********************************"
 " Rainbow paranthesis enable "
@@ -75,6 +84,47 @@ highlight GitGutterChange ctermfg=3
 highlight GitGutterDelete ctermfg=1
 highlight GitGutterChangeDelete ctermfg=4
 
+" fold "
+set foldmethod=syntax
+filetype plugin on
+filetype indent on
 
-"****************************** Add cscope **********************************"
-cs add $CSCOPE_DB
+
+"****************************** cscope/vim boilerplate **********************************"
+if has("cscope") "If vim is compiled with cscope
+
+    " use both cscope and ctag for 'ctrl-]', ':ta', and 'vim -t'
+    set cscopetag
+
+    " check cscope for definition of a symbol before checking ctags: set to 1
+    " if you want the reverse search order.
+    set csto=0
+
+    " Find and add a cscope file. Either from CSCOPE_DB or by searching for it
+    " recursively starting in the CWD and going up to /
+    if $CSCOPE_DB != ""
+        cs add $CSCOPE_DB
+    else
+        " Get all parts of our current path
+        let dirs = split($PWD, '/')
+        " Start building a list of paths in which to look for cscope.out
+        let paths = ['/']
+        " /foo/bar/baz would result in the `paths` array containing:
+        " [/ /foo /foo/bar /foo/bar/baz]
+        for d in dirs
+            let paths = add(paths, paths[len(paths) - 1] . d . '/')
+        endfor
+
+        " List is backwards search order, so reverse it.
+        for d in reverse(paths)
+            let cscope_file = d . "/cscope.out"
+            if filereadable(cscope_file)
+                execute('cs add ' . cscope_file)
+                break
+            endif
+        endfor
+    endif
+
+    " show msg when any other cscope db added
+    set cscopeverbose
+endif
