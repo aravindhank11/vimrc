@@ -55,6 +55,9 @@ Plug 'https://github.com/tmhedberg/SimpylFold.git'
 Plug 'https://github.com/vimwiki/vimwiki.git'
 call plug#end()
 
+" ripgrep "
+Plug 'https://github.com/jremmen/vim-ripgrep.git'
+Plug 'https://github.com/mileszs/ack.vim.git'
 
 "***************************** Pluggin Key mappings ******************************"
 " Jump between hunks
@@ -89,6 +92,14 @@ set foldmethod=syntax
 filetype plugin on
 filetype indent on
 
+" ripgrep "
+let g:ackprg = 'rg --vimgrep --smart-case'
+" Auto close the Quickfix list after pressing '<enter>' on a list item
+let g:ack_autoclose = 1
+" Any empty ack search will search for the work the cursor is on
+let g:ack_use_cword_for_empty_search = 1
+" Maps <leader>/ so we're ready to type the search keyword
+nnoremap <Leader>/ :Ack!<Space>
 
 "****************************** cscope/vim boilerplate **********************************"
 if has("cscope") "If vim is compiled with cscope
