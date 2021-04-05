@@ -30,16 +30,18 @@ nnoremap te :tabedit
 nnoremap <C-j> :tabprevious<CR>
 nnoremap <C-k> :tabnext<CR>
 
+" Ctrl + T to open in new vim tab "
+nnoremap <C-t> <C-w><CR><C-w>T
+
 "****************************** Plugins ******************************"
 call plug#begin('~/.vim/plugged')
+
 " Git stuffs "
 Plug 'https://github.com/tpope/vim-fugitive.git'
 
 " What branch am I in ? "
 Plug 'https://github.com/vim-airline/vim-airline.git'
-
-" Rainbow Paranthesis "
-Plug 'https://github.com/frazrepo/vim-rainbow.git'
+Plug 'https://github.com/vim-airline/vim-airline-themes.git'
 
 " What changes am I making in git tree "
 Plug 'https://github.com/airblade/vim-gitgutter.git'
@@ -53,11 +55,15 @@ Plug 'https://github.com/tmhedberg/SimpylFold.git'
 
 " Notes maker "
 Plug 'https://github.com/vimwiki/vimwiki.git'
-call plug#end()
 
 " ripgrep "
 Plug 'https://github.com/jremmen/vim-ripgrep.git'
 Plug 'https://github.com/mileszs/ack.vim.git'
+
+" color trailing white space "
+Plug 'https://github.com/ntpeters/vim-better-whitespace.git'
+
+call plug#end()
 
 "***************************** Pluggin Key mappings ******************************"
 " Jump between hunks
@@ -70,12 +76,19 @@ inoremap <C-f> <Esc><Esc>:BLines!<CR>
 map <C-g> <Esc><Esc>:BCommits!<CR>
 
 " fold enable / disable "
-set foldenable
+set nofoldenable
+
+" cscope "
+nmap <C-\>s :cs find s <C-R>=expand("<cword>")<CR><CR>
+nmap <C-\>g :cs find g <C-R>=expand("<cword>")<CR><CR>
+nmap <C-\>c :cs find c <C-R>=expand("<cword>")<CR><CR>
+nmap <C-\>t :cs find t <C-R>=expand("<cword>")<CR><CR>
+nmap <C-\>e :cs find e <C-R>=expand("<cword>")<CR><CR>
+nmap <C-\>f :cs find f <C-R>=expand("<cfile>")<CR><CR>
+nmap <C-\>i :cs find i ^<C-R>=expand("<cfile>")<CR>$<CR>
+nmap <C-\>d :cs find d <C-R>=expand("<cword>")<CR><CR>
 
 "****************************** Plugin set **********************************"
-" Rainbow paranthesis enable "
-let g:rainbow_active = 1
-
 " git colorful what changes am I making "
 set updatetime=1000
 let g:gitgutter_max_signs = 500
@@ -99,7 +112,11 @@ let g:ack_autoclose = 1
 " Any empty ack search will search for the work the cursor is on
 let g:ack_use_cword_for_empty_search = 1
 " Maps <leader>/ so we're ready to type the search keyword
-nnoremap <Leader>/ :Ack!<Space>
+nnoremap <Leader>/ :Ack!<Space>o
+
+syntax on
+let g:airline_theme='simple'
+highlight Visual cterm=NONE ctermbg=0 ctermfg=Grey guibg=Grey
 
 "****************************** cscope/vim boilerplate **********************************"
 if has("cscope") "If vim is compiled with cscope
@@ -114,6 +131,7 @@ if has("cscope") "If vim is compiled with cscope
     " Find and add a cscope file. Either from CSCOPE_DB or by searching for it
     " recursively starting in the CWD and going up to /
     if $CSCOPE_DB != ""
+        set nocscopeverbose
         cs add $CSCOPE_DB
     else
         " Get all parts of our current path
