@@ -33,6 +33,13 @@ nnoremap <C-k> :tabnext<CR>
 " Ctrl + T to open in new vim tab "
 nnoremap <C-t> <C-w><CR><C-w>T
 
+" line number togggle "
+augroup numbertoggle
+autocmd!
+    autocmd BufEnter,FocusGained,InsertLeave,WinEnter * if &nu && mode() != "i" | set rnu   | endif
+    autocmd BufLeave,FocusLost,InsertEnter,WinLeave   * if &nu                  | set nornu | endif
+augroup END
+
 "****************************** Plugins ******************************"
 call plug#begin('~/.vim/plugged')
 
