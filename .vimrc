@@ -18,6 +18,7 @@ set path=.,,**
 set colorcolumn=100
 hi ColorColumn ctermbg=grey guibg=grey
 " highlight ColorColumn term=reverse ctermbg=0 guibg=#081c23
+set nocscopeverbose
 
 "***************************** Basic Key mappings ******************************"
 " Go to start and end of line using Ctrl+A and Ctrl+E "
@@ -31,8 +32,37 @@ nnoremap te :tabedit
 nnoremap <C-j> :tabprevious<CR>
 nnoremap <C-k> :tabnext<CR>
 
-" Ctrl + T to open in new vim tab "
-nnoremap <C-t> <C-w><CR><C-w>T
+" set clipboard+=unnamed "
+function! TogglePaste()
+    if(&paste == 0)
+        set paste
+        echo "Paste Mode Enabled"
+    else
+        set nopaste
+        echo "Paste Mode Disabled"
+    endif
+endfunction
+map <leader>p :call TogglePaste()<cr>
+
+" set mouse=a " Makes auto selection
+let g:mouse_toggle = 0
+set mouse=r
+function! ToggleMouse()
+    if(g:mouse_toggle == 0)
+        set mouse=a
+        let g:mouse_toggle = 1
+        echo "Mouse selection within vim"
+    else
+        set mouse=r
+        let g:mouse_toggle = 0
+        echo "Mouse selection global"
+    endif
+endfunction
+map <C-c> :call ToggleMouse()<CR>
+
+" Mouse resizing for splits
+" NOTE: This will work only with mouse=a
+set ttymouse=xterm2
 
 "****************************** Plugins ******************************"
 call plug#begin('~/.vim/plugged')
@@ -70,7 +100,7 @@ Plug 'https://github.com/dr-kino/cscope-maps.git'
 
 call plug#end()
 
-"***************************** Pluggin Key mappings ******************************"
+"***************************** Pluggin Key mappings and sets ******************************"
 " Jump between hunks
 nmap <Leader>gn <Plug>GitGutterNextHunk  " git next
 nmap <Leader>gp <Plug>GitGutterPrevHunk  " git previous
@@ -80,13 +110,9 @@ map <C-f> <Esc><Esc>:Files!<CR>
 inoremap <C-f> <Esc><Esc>:BLines!<CR>
 map <C-g> <Esc><Esc>:BCommits!<CR>
 
-" fold enable / disable "
-set nofoldenable
-
 " git blame for current line "
 nnoremap <Leader>s :<C-u>call gitblame#echo()<CR>
 
-"****************************** Plugin set **********************************"
 " git colorful what changes am I making "
 set updatetime=1000
 let g:gitgutter_max_signs = 500
@@ -98,10 +124,25 @@ highlight GitGutterChange ctermfg=3
 highlight GitGutterDelete ctermfg=1
 highlight GitGutterChangeDelete ctermfg=4
 
+" Coloring "
+syntax on
+set t_Co=256
+let g:airline_theme='badwolf'
+highlight Visual cterm=NONE ctermbg=0 ctermfg=Grey guibg=Grey
+
+" Coloring for vimdiff "
+highlight DiffAdd    cterm=bold ctermfg=10 ctermbg=17 gui=none guifg=bg guibg=Red
+highlight DiffDelete cterm=bold ctermfg=10 ctermbg=17 gui=none guifg=bg guibg=Red
+highlight DiffChange cterm=bold ctermfg=10 ctermbg=17 gui=none guifg=bg guibg=Red
+highlight DiffText   cterm=bold ctermfg=10 ctermbg=88 gui=none guifg=bg guibg=Red
+
 " fold "
+set nofoldenable
 set foldmethod=syntax
 filetype plugin on
 filetype indent on
+" Fold and unfold with mouse "
+" noremap <3-LeftMouse> za
 
 " ripgrep "
 let g:ackprg = 'rg --vimgrep --smart-case'
@@ -112,7 +153,19 @@ let g:ack_use_cword_for_empty_search = 1
 " Maps <leader>/ so we're ready to type the search keyword
 nnoremap <Leader>/ :Ack!<Space>o
 
-syntax on
-set t_Co=256
-let g:airline_theme='badwolf'
-highlight Visual cterm=NONE ctermbg=0 ctermfg=Grey guibg=Grey
+" cscope"
+let b:projectroot = getcwd()
+" Ref: https://learnvimscriptthehardway.stevelosh.com/chapters/52.html "
+function! UpdateCscopeDB()
+    let b:cscope_files = b:projectroot . "/cscope.files"
+    if filereadable(b:cscope_files)
+        let $CscopeFiles = b:cscope_files
+        :silent !cscope -q -b -i $CscopeFiles >/dev/null 2>&1
+        :silent !cscope reset
+        :redraw!
+        echo "Updated cscopedb"
+    else
+        echo "cscope.files is not present in " . b:projectroot ". Run bldcs from terminal"
+    endif
+endfunction
+command UpdateDb call UpdateCscopeDB()
