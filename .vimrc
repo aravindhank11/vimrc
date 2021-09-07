@@ -1,6 +1,7 @@
 "****************************** Basic set **********************************"
 set splitbelow
 set splitright
+set expandtab
 set tabstop=4
 set shiftwidth=4
 set softtabstop=4
@@ -154,18 +155,15 @@ let g:ack_use_cword_for_empty_search = 1
 nnoremap <Leader>/ :Ack!<Space>o
 
 " cscope"
-let b:projectroot = getcwd()
 " Ref: https://learnvimscriptthehardway.stevelosh.com/chapters/52.html "
 function! UpdateCscopeDB()
-    let b:cscope_files = b:projectroot . "/cscope.files"
-    if filereadable(b:cscope_files)
-        let $CscopeFiles = b:cscope_files
-        :silent !cscope -q -b -i $CscopeFiles >/dev/null 2>&1
-        :silent !cscope reset
-        :redraw!
-        echo "Updated cscopedb"
-    else
-        echo "cscope.files is not present in " . b:projectroot ". Run bldcs from terminal"
-    endif
+    "let projectroot = system('git rev-parse --show-toplevel | sed "s/\n//g"')
+    "let b:cscope_files = projectroot . "/cscope.files"
+    let b:cscope_files = system('gitroot=$(git rev-parse --show-toplevel); echo "$gitroot/cscope.files"')
+    let $CscopeFiles = b:cscope_files
+    :silent !cscope -q -b -i $CscopeFiles >/dev/null 2>&1
+    :silent !cscope reset
+    :redraw!
+    echo "Updated cscopedb"
 endfunction
 command UpdateDb call UpdateCscopeDB()
